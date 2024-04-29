@@ -1,9 +1,11 @@
 const express=require("express");
 const app=express();
-
+require('dotenv').config();
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://choudhuryanup8:zG2MfEizQHdUsI2r@cluster1.ohmhb8v.mongodb.net/');
+const databaseUrl = process.env.DATABASE_URL;
+
+mongoose.connect(databaseUrl);
   
 
 const UserSchema=new mongoose.Schema({ // Defining Schema for mongoose
