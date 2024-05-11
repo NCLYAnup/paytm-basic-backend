@@ -91,7 +91,7 @@ router.post("/signin", async (req, res) => {
         })
     }
     else{
-        res.json({
+        res.status(401).json({
             message: "Wrong Password"
         })
     }
