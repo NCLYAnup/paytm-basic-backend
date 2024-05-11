@@ -75,7 +75,7 @@ router.post("/signin", async (req, res) => {
     }
    
     const user = await User.findOne({
-        username: req.body.username,
+        username: req.body.username
     });
     const password=req.body.password;
 
@@ -106,9 +106,9 @@ router.post("/signin", async (req, res) => {
 
 
 const updateBody = zod.object({
-	username: zod.string().email(),
-    firstName: zod.string(),
-    lastName: zod.string()
+	username: zod.string().email().optional(),
+    firstName: zod.string().optional(),
+    lastName: zod.string().optional()
 })
 // for update the profile
 router.get("/profile", authMiddleware, async (req, res) => {
