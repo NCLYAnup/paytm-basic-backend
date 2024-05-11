@@ -120,14 +120,17 @@ router.get("/profile", authMiddleware, async (req, res) => {
     
 });
 router.put("/updateprofile",authMiddleware, async (req,res)=>{
-    const {success}=updateBody.safeParse(req.body)
+    const userData = req.body.user; 
+    const {success}=updateBody.safeParse(userData)
     if (!success) {
+       
         res.status(411).json({
             message: "Error while updating information"
         })
     }
      else{
-	 await User.updateOne({ _id: req.userId }, req.body);
+	 await User.updateOne({ _id: req.userId }, userData);
+    
 	
     res.json({
         message: "Updated successfully"
@@ -140,11 +143,13 @@ router.get("/bulk", async (req, res) => {
     const users = await User.find({
         $or: [{
             firstName: {
-                "$regex": filter
+                "$regex": filter,
+                "$options": "i"
             }
         }, {
             lastName: {
-                "$regex": filter
+                "$regex": filter,
+                "$options": "i"
             }
         }]
     })
