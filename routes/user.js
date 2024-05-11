@@ -1,12 +1,14 @@
 const express=require("express");
 const router=express.Router();
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 const zod=require("zod");
 const jwt=require("jsonwebtoken")
 const {User, Account}=require("../db");
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 const JWT_SECRET=process.env.JWT_SECRET;
+const saltRounds = 10;
 
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -32,10 +34,13 @@ router.post("/signup", async (req, res) => {
             message: "Email already taken"
         })
     }
+    const password= req.body.password;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     if(success){
     const user = await User.create({
         username: req.body.username,
-        password: req.body.password,
+        password: hashedPassword,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
     })
@@ -68,13 +73,15 @@ router.post("/signin", async (req, res) => {
             message: "Incorrect inputs"
         })
     }
-
+   
     const user = await User.findOne({
         username: req.body.username,
-        password: req.body.password
     });
+    const password=req.body.password;
 
     if (user) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
         const token = jwt.sign({
             userId: user._id
         }, JWT_SECRET);
@@ -82,7 +89,13 @@ router.post("/signin", async (req, res) => {
         res.json({
             token: token
         })
-        return;
+    }
+    else{
+        res.json({
+            message: "Wrong Password"
+        })
+    }
+       return;
     }
 
     
@@ -95,7 +108,7 @@ router.post("/signin", async (req, res) => {
 const updateBody = zod.object({
 	username: zod.string().email(),
     firstName: zod.string(),
-    lastName: zod.string(),
+    lastName: zod.string()
 })
 // for update the profile
 router.get("/profile", authMiddleware, async (req, res) => {
@@ -113,12 +126,12 @@ router.put("/updateprofile",authMiddleware, async (req,res)=>{
             message: "Error while updating information"
         })
     }
-
-		await User.updateOne(req.body, { id: req.userId });
+     else{
+	 await User.updateOne({ _id: req.userId }, req.body);
 	
     res.json({
         message: "Updated successfully"
-    })
+    })}
 })
 
 router.get("/bulk", async (req, res) => {
