@@ -93,9 +93,9 @@ router.post("/signin", async (req, res) => {
 
 
 const updateBody = zod.object({
-	password: zod.string().optional(),
-    firstName: zod.string().optional(),
-    lastName: zod.string().optional(),
+	username: zod.string().email(),
+    firstName: zod.string(),
+    lastName: zod.string(),
 })
 // for update the profile
 router.get("/profile", authMiddleware, async (req, res) => {
