@@ -12,5 +12,5 @@ const port= process.env.PORT;
 
 app.use("/api/v1", mainRouter)
 
-
-module.exports=app;
+app.listen(5000);
+//module.exports=app;
